@@ -8,19 +8,40 @@ function App() {
   const [mostrarSpinner, setMostrarSpinner] = useState(false)
   const [pais, setPais] = useState("")
   const [lugar, setLugar] = useState("")
-  const [latYLon , setLatYLon] = useState([])
-  const [clima ,setClima] = useState({})
+  const [latYLon, setLatYLon] = useState([])
+  const [clima, setClima] = useState({})
   // hacer las solisitudes de las dos API
   // para saber la ubicacion: https://api.openweathermap.org/geo/1.0/direct?q=Argentina&limit=5&appid=a2d7dbafe30003e0b18311d020bceb3c
   // para saber el clima: https://api.openweathermap.org/data/2.5/weather?lat=-34.6037&lon=-58.3816&appid=a2d7dbafe30003e0b18311d020bceb3c
+
+  const validarPaises = () => {
+    const paisesExistentes = [
+      "US", "CA", "MX", "BR", "AR", "CO", "PE", "CL", "EC", "VE",
+      "GB", "DE", "FR", "IT", "ES", "NL", "BE", "SE", "CH", "AT",
+      "CN", "JP", "KR", "IN", "ID", "TH", "PH", "VN", "MY", "SG"
+    ];
+    return paisesExistentes.includes(pais);
+  }
+
+
+  const handlerSubmit = (e) => {
+    e.preventDefault()
+    const lugarT = lugar.trim()
+    console.log(validarPaises())
+    if (validarPaises() && (lugarT.length <= 50 && lugarT.length >= 2)) {
+      console.log("si")
+    } else {
+      alert("datos incorrectos, intentelo de nuevo")
+    }
+  }
   return (
     <Container className='my-3'>
       <h1 className='text-light text-center'>Web de clima</h1>
       <div className='Formulario px-4 py-4'>
-        <Form>
-        <Form.Group>
+        <Form onSubmit={handlerSubmit}>
+          <Form.Group>
             <Form.Label>ingrese el pais:</Form.Label>
-            <Form.Select>
+            <Form.Select onChange={(e) => setPais(e.target.value)}>
               <optgroup label="América">
                 <option value="US">Estados Unidos (USA)</option>
                 <option value="CA">Canadá</option>
@@ -61,9 +82,9 @@ function App() {
           </Form.Group>
           <Form.Group className='mt-3'>
             <Form.Label>ingrese el Lugar</Form.Label>
-            <Form.Control type='text' placeholder='Ej: Barcelona' required></Form.Control>
+            <Form.Control type='text' placeholder='Ej: Barcelona' minLength={2} maxLength={50} onChange={(e) => setLugar(e.target.value)} required></Form.Control>
           </Form.Group>
-          <Button className='mt-4'>Buscar</Button>
+          <Button className='mt-4' type='submit'>Buscar</Button>
         </Form>
       </div>
       <Resultados></Resultados>
