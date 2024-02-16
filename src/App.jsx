@@ -8,8 +8,11 @@ function App() {
   const [mostrarSpinner, setMostrarSpinner] = useState(false)
   const [pais, setPais] = useState("")
   const [lugar, setLugar] = useState("")
-  const [latYLon, setLatYLon] = useState([])
+  const [lat, setLat] = useState("")
+  const [lon, setLon] = useState("")
   const [clima, setClima] = useState({})
+  const [posicion, setPosicion] = useState(0)
+  const [noEncontro, setNoEncontro] = useState(false)
   // hacer las solisitudes de las dos API
   // para saber la ubicacion: https://api.openweathermap.org/geo/1.0/direct?q=Argentina&limit=5&appid=a2d7dbafe30003e0b18311d020bceb3c
   // para saber el clima: https://api.openweathermap.org/data/2.5/weather?lat=-34.6037&lon=-58.3816&appid=a2d7dbafe30003e0b18311d020bceb3c
@@ -23,13 +26,26 @@ function App() {
     return paisesExistentes.includes(pais);
   }
 
-
-  const handlerSubmit = (e) => {
+  const handlerSubmit = async (e) => {
     e.preventDefault()
+    setNoEncontro(false)
     const lugarT = lugar.trim()
-    console.log(validarPaises())
     if (validarPaises() && (lugarT.length <= 50 && lugarT.length >= 2)) {
-      console.log("si")
+      const peticion = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${lugar}&appid=a2d7dbafe30003e0b18311d020bceb3c`)
+      const datos = await peticion.json()
+      if (datos.length !== 0) {
+        setPosicion(0)
+        for (let i = 0; i > datos.length; i++) {
+          if (datos[i].country === pais) {
+            setPosicion(i);
+            break;
+          }
+        }
+        setLat(datos[posicion].lat)
+        setLon(datos[posicion].lon)
+      }else{
+        setNoEncontro(true)
+      }
     } else {
       alert("datos incorrectos, intentelo de nuevo")
     }
