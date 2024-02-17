@@ -1,4 +1,4 @@
-import { Button, Container, Form } from 'react-bootstrap';
+import { Button, Container, Form, Spinner } from 'react-bootstrap';
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import Resultados from "./components/Resultados";
@@ -11,7 +11,8 @@ function App() {
   const [lon, setLon] = useState("");
   const [clima, setClima] = useState({});
   const [posicion, setPosicion] = useState(0);
-  const [noEncontro, setNoEncontro] = useState(false);
+  const [noEncontro, setNoEncontro] = useState(true);
+  const [mostrarSpinner, setMostrarSpinner] = useState(false)
 
   const validarPaises = () => {
     const paisesExistentes = [
@@ -24,6 +25,7 @@ function App() {
 
   const handlerSubmit = async (e) => {
     e.preventDefault();
+    setMostrarSpinner(true)
     setNoEncontro(false);
     const lugarT = lugar.trim().toLowerCase();
     setLugar(lugarT);
@@ -40,10 +42,10 @@ function App() {
             break;
           }
         }
-        if(datos[posicion].country === pais){
+        if (datos[posicion].country === pais) {
           setLat(datos[posicion].lat);
           setLon(datos[posicion].lon);
-        }else{
+        } else {
           setNoEncontro(true)
         }
       } else {
@@ -52,21 +54,24 @@ function App() {
     } else {
       alert("Datos incorrectos, intentelo de nuevo");
     }
+    setMostrarSpinner(false)
   }
 
   useEffect(() => {
+    setMostrarSpinner(true)
     const fetchWeatherData = async () => {
       if (lat && lon) {
         const peticion2 = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=a2d7dbafe30003e0b18311d020bceb3c&lang=es`);
         const datos2 = await peticion2.json();
-        console.log(datos2);
         setClima(datos2);
       }
     };
 
     fetchWeatherData();
+    setMostrarSpinner(false)
   }, [lat, lon]);
 
+  const mostrarComponente = mostrarSpinner ? (<div className="text-center my-5"><Spinner variant='light'></Spinner></div>) : (<Resultados clima={clima} noEncontro={noEncontro} />);
   return (
     <Container className='my-3'>
       <h1 className='text-light text-center'>Web de clima</h1>
@@ -120,7 +125,7 @@ function App() {
           <Button className='mt-4' type='submit'>Buscar</Button>
         </Form>
       </div>
-      <Resultados clima={clima} noEncontro={noEncontro} />
+      {mostrarComponente}
     </Container>
   );
 }
