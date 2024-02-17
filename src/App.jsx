@@ -1,21 +1,17 @@
-import { Button, Container, Form } from 'react-bootstrap'
-import "bootstrap/dist/css/bootstrap.min.css"
-import './App.css'
-import Resultados from "./components/Resultados"
-import { useState } from 'react'
+import { Button, Container, Form } from 'react-bootstrap';
+import "bootstrap/dist/css/bootstrap.min.css";
+import './App.css';
+import Resultados from "./components/Resultados";
+import { useState, useEffect } from 'react';
 
 function App() {
-  const [mostrarSpinner, setMostrarSpinner] = useState(false)
-  const [pais, setPais] = useState("")
-  const [lugar, setLugar] = useState("")
-  const [lat, setLat] = useState("")
-  const [lon, setLon] = useState("")
-  const [clima, setClima] = useState({})
-  const [posicion, setPosicion] = useState(0)
-  const [noEncontro, setNoEncontro] = useState(false)
-  // hacer las solisitudes de las dos API
-  // para saber la ubicacion: https://api.openweathermap.org/geo/1.0/direct?q=Argentina&limit=5&appid=a2d7dbafe30003e0b18311d020bceb3c
-  // para saber el clima: https://api.openweathermap.org/data/2.5/weather?lat=-34.6037&lon=-58.3816&appid=a2d7dbafe30003e0b18311d020bceb3c
+  const [pais, setPais] = useState("");
+  const [lugar, setLugar] = useState("");
+  const [lat, setLat] = useState("");
+  const [lon, setLon] = useState("");
+  const [clima, setClima] = useState({});
+  const [posicion, setPosicion] = useState(0);
+  const [noEncontro, setNoEncontro] = useState(false);
 
   const validarPaises = () => {
     const paisesExistentes = [
@@ -27,36 +23,57 @@ function App() {
   }
 
   const handlerSubmit = async (e) => {
-    e.preventDefault()
-    setNoEncontro(false)
-    const lugarT = lugar.trim()
-    if (validarPaises() && (lugarT.length <= 50 && lugarT.length >= 2)) {
-      const peticion = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${lugar}&appid=a2d7dbafe30003e0b18311d020bceb3c`)
-      const datos = await peticion.json()
+    e.preventDefault();
+    setNoEncontro(false);
+    const lugarT = lugar.trim().toLowerCase();
+    setLugar(lugarT);
+
+    if (validarPaises() && (lugar.length <= 50 && lugar.length >= 2)) {
+      const peticion = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${lugar}&appid=a2d7dbafe30003e0b18311d020bceb3c`);
+      const datos = await peticion.json();
+
       if (datos.length !== 0) {
-        setPosicion(0)
-        for (let i = 0; i > datos.length; i++) {
+        setPosicion(0);
+        for (let i = 0; i < datos.length; i++) {
           if (datos[i].country === pais) {
             setPosicion(i);
             break;
           }
         }
-        setLat(datos[posicion].lat)
-        setLon(datos[posicion].lon)
-      }else{
-        setNoEncontro(true)
+        if(datos[posicion].country === pais){
+          setLat(datos[posicion].lat);
+          setLon(datos[posicion].lon);
+        }else{
+          setNoEncontro(true)
+        }
+      } else {
+        setNoEncontro(true);
       }
     } else {
-      alert("datos incorrectos, intentelo de nuevo")
+      alert("Datos incorrectos, intentelo de nuevo");
     }
   }
+
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      if (lat && lon) {
+        const peticion2 = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=a2d7dbafe30003e0b18311d020bceb3c&lang=es`);
+        const datos2 = await peticion2.json();
+        console.log(datos2);
+        setClima(datos2);
+      }
+    };
+
+    fetchWeatherData();
+  }, [lat, lon]);
+
   return (
     <Container className='my-3'>
       <h1 className='text-light text-center'>Web de clima</h1>
       <div className='Formulario px-4 py-4'>
         <Form onSubmit={handlerSubmit}>
           <Form.Group>
-            <Form.Label>ingrese el pais:</Form.Label>
+            <Form.Label>Ingrese el país:</Form.Label>
             <Form.Select onChange={(e) => setPais(e.target.value)}>
               <optgroup label="América">
                 <option value="US">Estados Unidos (USA)</option>
@@ -97,15 +114,15 @@ function App() {
             </Form.Select>
           </Form.Group>
           <Form.Group className='mt-3'>
-            <Form.Label>ingrese el Lugar</Form.Label>
-            <Form.Control type='text' placeholder='Ej: Barcelona' minLength={2} maxLength={50} onChange={(e) => setLugar(e.target.value)} required></Form.Control>
+            <Form.Label>Ingrese el Lugar</Form.Label>
+            <Form.Control type='text' placeholder='Ej: Barcelona' minLength={2} maxLength={50} onChange={(e) => setLugar(e.target.value)} required />
           </Form.Group>
           <Button className='mt-4' type='submit'>Buscar</Button>
         </Form>
       </div>
-      <Resultados></Resultados>
+      <Resultados clima={clima} noEncontro={noEncontro} />
     </Container>
-  )
+  );
 }
 
-export default App
+export default App;
