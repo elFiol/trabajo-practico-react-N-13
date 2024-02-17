@@ -1,8 +1,14 @@
-# React + Vite
+# web de Clima
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+en este proyecto el usuario manda el lugar y pais del que quiere ver su clima y luego mostramos el clima y la descripcion del clima, entonses para este proyecto usamos las dos API de openweathermap (para saber la ubicacion, es decir las cordenadas, y para saber el clima)
 
-Currently, two official plugins are available:
+## Librerias
+- react-bootstrap
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## API
+- [openweathermap](https://openweathermap.org/api)
+
+### [Repositorio Aqui](https://github.com/elFiol/trabajo-practico-react-N-13)
+### [Link del proyecto Aqui](https://trabajo-practico-react-13.netlify.app)
+
+trabajo hecho por Thiago Benjamin Fiol
